@@ -1,0 +1,32 @@
+module choosingFunction(
+    input logic [9:0]INSTR,     //Instruction given by user
+    output logic [3:0]FUNCT,    //Function to be given to ALU
+    output logic [1:0]RX, RY,   //Registers to be used
+)
+
+logic [3:0]OUTPUT;
+
+//"Decodes" the instruction into function and registers to be used
+always_comb
+begin
+    //If immidiate instruction
+    if(INSTR[9])
+    begin
+        //If both MSBs are 11
+        if(INSTR[8])
+            OUTPUT <= 4'b1101;
+        else //If MSBs are 10
+            OUTPUT <= 4'b1100;
+     end
+     else //All other functions
+        OUTPUT <= INSTR[3:0];
+
+    //Sets the RX register based on the instruction from the user
+    RX <= INSTR[7:6];
+    //Sets the RY register based on the instruction from the user
+    RY <= INSTR[5:4];
+end
+
+assign FUNCT = OUTPUT;
+
+endmodule

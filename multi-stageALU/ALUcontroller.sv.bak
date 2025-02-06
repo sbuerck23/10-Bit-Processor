@@ -1,0 +1,19 @@
+module ALUcontroller(
+        input logic [9:0]INPUT,
+        input logic [3:0]FN,
+        input logic CLK, enA, enG, enALU,
+        output logic [9:0]_A, _Gin, _Gout,
+        output logic [3:0]_FN
+);
+
+ALUregisters Areg( .D(INPUT), .CLKb(CLK), .EN(enA), .Q(_A) );
+	defparam Areg.N = 10; 
+
+ALUregisters Greg( .D(_Gin), .CLKb(CLK), .EN(enG), .Q(_Gout) );
+	defparam Greg.N = 10;
+
+ALUregisters ALUreg( .D(FN), .CLKb(CLK), .EN(enALU), .Q(_FN) );
+	defparam ALUreg.N = 4;
+
+
+endmodule
