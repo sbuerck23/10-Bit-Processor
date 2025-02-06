@@ -1,0 +1,47 @@
+module topLevel(
+    input logic [9:0]DATA, //All Switches
+    input logic CLK, RAWCLK, RAWPEEK, //All Buttons
+    output logic [9:0]DATABUS, //All LEDS
+    output logic [6:0] HEX0, HEX1, HEX2, THEX, //Data Bus/Register Peek (HEX2:0)
+    output logic DONE //Decimal Point on HEX5
+);
+
+//Debounce the CLK and PEEK buttons DONE
+logic CLKb, PEEKb;
+debouncer( .A(CLKb), .A_noisy(RAWCLK), .CLK50M(CLK) );
+debouncer( .A(PEEKb), .A_noisy(RAWPEEK), .CLK50M(CLK) );
+
+//ALU Module DONE
+logic [9:0]_A, _Gin, _Gout;
+logic [3:0]_FN;
+ALU( .A(_A), .B(INPUT), .IMM(INPUT), .FN(_FN), .Q(_Gin) );
+
+//ALU Controller DONE
+logic [3:0]FUNCT;
+ALUcontroller( .INPUT(DATA), .FN(FUNCT), .CLK(CLKb), .enA(enA), .enG(enG), .enALU(enALU), ._A(_A), 
+               ._Gin(_Gin), ._Gout(_Gout), ._FN(_FN) );
+
+//Processor Controller
+logic enA, enG, enALU, _DONE;
+ProcessorController( .INSTR(), .T(), .IMM(), .Rin(), .Rout(), .ENW(_ENW), 
+                     .ENR(_ENR), .Ain(), .Gin(), .Gout(), .ALUcont(FUNCT), .Ext(), .IRin(), .CLR(), .DONE(_DONE) );
+
+//Registers
+logic _ENW, _ENR;
+logic [9:0]Q0, Q1;
+registerFile( .D(DATA), .ENW(_ENW), .ENR(_ENR), .CLKb(CLKb), .WRA(), .RDA0(), .RDA1(), .Q0(Q0), .Q1(Q1) );
+
+//Output Logic
+
+outputLogic( .BUS(_Gin), .REG(Q1), .TIME(COUNT), .PEEKb(PEEKb), .DONE(_DONE), .LED_B(DATABUS), .HEX0(HEX0), .HEX1(HEX1), 
+             .HEX2(HEX2), .THEX(THEX), .LED_D(DONE) );
+
+//Counter
+logic [1:0]COUNT;
+upCount2( .CLR(), .CLKb(CLKb), .CNT(COUNT) );
+
+
+
+
+
+endmodule
